@@ -16,6 +16,28 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Database
+
+Copy the environment file and set your PostgreSQL connection string:
+
+```bash
+cp .env.example .env
+```
+
+Push the schema and seed sample data:
+
+```bash
+npx prisma db push && npx prisma db seed
+```
+
+Or use the npm scripts:
+
+```bash
+npm run db:push && npm run db:seed
+```
+
+You can browse seeded data with `npx prisma studio`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
