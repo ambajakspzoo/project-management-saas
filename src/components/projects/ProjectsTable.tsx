@@ -1,0 +1,122 @@
+import { formatBudget, formatDeadline } from "@/lib/format";
+import { Project } from "@/types/project";
+
+import { Button } from "@/components/ui/Button";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+
+type ProjectsTableProps = {
+  projects: Project[];
+};
+
+export function ProjectsTable({ projects }: ProjectsTableProps) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-zinc-200 text-sm">
+          <thead className="bg-zinc-50">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium text-zinc-600">
+                Title
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-zinc-600">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-zinc-600">
+                Deadline
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-zinc-600">
+                Assignee
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-zinc-600">
+                Budget
+              </th>
+              <th className="px-4 py-3 text-right font-medium text-zinc-600">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {projects.map((project) => (
+              <tr key={project.id} className="hover:bg-zinc-50/80">
+                <td className="px-4 py-3">
+                  <div className="font-medium text-zinc-900">
+                    {project.title}
+                  </div>
+                  {project.description ? (
+                    <div className="mt-0.5 line-clamp-1 text-zinc-500">
+                      {project.description}
+                    </div>
+                  ) : null}
+                </td>
+                <td className="px-4 py-3">
+                  <StatusBadge status={project.status} />
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-zinc-700">
+                  {formatDeadline(project.deadline)}
+                </td>
+                <td className="px-4 py-3 text-zinc-700">
+                  {project.teamMember.name}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-zinc-700">
+                  {formatBudget(project.budget)}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <Button variant="ghost" size="sm" disabled>
+                    Edit
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <tr>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <td key={index} className="px-4 py-3">
+          <div className="h-4 animate-pulse rounded bg-zinc-200" />
+        </td>
+      ))}
+    </tr>
+  );
+}
+
+export function ProjectsTableSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-zinc-200 text-sm">
+          <thead className="bg-zinc-50">
+            <tr>
+              {[
+                "Title",
+                "Status",
+                "Deadline",
+                "Assignee",
+                "Budget",
+                "Actions",
+              ].map((heading) => (
+                <th
+                  key={heading}
+                  className="px-4 py-3 text-left font-medium text-zinc-600"
+                >
+                  {heading}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonRow key={index} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

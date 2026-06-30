@@ -1,5 +1,5 @@
-import { DashboardPlaceholder } from "@/components/layout/DashboardPlaceholder";
+import { ProjectsDashboard } from "@/components/projects/ProjectsDashboard";
 
 export default function Home() {
-  return <DashboardPlaceholder />;
+  return <ProjectsDashboard />;
 }
