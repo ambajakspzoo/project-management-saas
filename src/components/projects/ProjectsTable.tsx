@@ -6,9 +6,10 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 
 type ProjectsTableProps = {
   projects: Project[];
+  onEdit: (project: Project) => void;
 };
 
-export function ProjectsTable({ projects }: ProjectsTableProps) {
+export function ProjectsTable({ projects, onEdit }: ProjectsTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
       <div className="overflow-x-auto">
@@ -61,7 +62,11 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                   {formatBudget(project.budget)}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Button variant="ghost" size="sm" disabled>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit(project)}
+                  >
                     Edit
                   </Button>
                 </td>

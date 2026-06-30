@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { ProjectFilters } from "@/components/projects/ProjectFilters";
+import { ProjectFormModal } from "@/components/projects/ProjectFormModal";
 import {
   ProjectsTable,
   ProjectsTableSkeleton,
 } from "@/components/projects/ProjectsTable";
 import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
 import { Project, ProjectStatusFilter } from "@/types/project";
 
 export function ProjectsDashboard() {
@@ -19,7 +19,10 @@ export function ProjectsDashboard() {
   const [status, setStatus] = useState<ProjectStatusFilter>("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [formKey, setFormKey] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -65,7 +68,28 @@ export function ProjectsDashboard() {
     }
 
     loadProjects();
-  }, [status, debouncedSearch]);
+  }, [status, debouncedSearch, refreshKey]);
+
+  const openCreateModal = () => {
+    setEditingProject(null);
+    setFormKey((current) => current + 1);
+    setIsFormOpen(true);
+  };
+
+  const openEditModal = (project: Project) => {
+    setEditingProject(project);
+    setFormKey((current) => current + 1);
+    setIsFormOpen(true);
+  };
+
+  const closeFormModal = () => {
+    setIsFormOpen(false);
+    setEditingProject(null);
+  };
+
+  const handleProjectSaved = () => {
+    setRefreshKey((current) => current + 1);
+  };
 
   return (
     <DashboardShell>
@@ -79,7 +103,7 @@ export function ProjectsDashboard() {
               Track status, deadlines, budgets, and assigned team members.
             </p>
           </div>
-          <Button onClick={() => setIsModalOpen(true)}>Add Project</Button>
+          <Button onClick={openCreateModal}>Add Project</Button>
         </div>
 
         <ProjectFilters
@@ -109,25 +133,17 @@ export function ProjectsDashboard() {
             </p>
           </div>
         ) : (
-          <ProjectsTable projects={projects} />
+          <ProjectsTable projects={projects} onEdit={openEditModal} />
         )}
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Add Project"
-      >
-        <p className="text-sm text-zinc-600">
-          Project form fields will be wired up in the next commit.
-        </p>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-            Cancel
-          </Button>
-          <Button disabled>Save</Button>
-        </div>
-      </Modal>
+      <ProjectFormModal
+        key={formKey}
+        isOpen={isFormOpen}
+        project={editingProject}
+        onClose={closeFormModal}
+        onSaved={handleProjectSaved}
+      />
     </DashboardShell>
   );
 }
