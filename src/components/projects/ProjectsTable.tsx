@@ -7,9 +7,16 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 type ProjectsTableProps = {
   projects: Project[];
   onEdit: (project: Project) => void;
+  onDelete: (project: Project) => void;
+  deletingProjectId?: string | null;
 };
 
-export function ProjectsTable({ projects, onEdit }: ProjectsTableProps) {
+export function ProjectsTable({
+  projects,
+  onEdit,
+  onDelete,
+  deletingProjectId = null,
+}: ProjectsTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
       <div className="overflow-x-auto">
@@ -62,13 +69,25 @@ export function ProjectsTable({ projects, onEdit }: ProjectsTableProps) {
                   {formatBudget(project.budget)}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEdit(project)}
-                  >
-                    Edit
-                  </Button>
+                  <div className="flex justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEdit(project)}
+                      disabled={deletingProjectId === project.id}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={() => onDelete(project)}
+                      disabled={deletingProjectId === project.id}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}

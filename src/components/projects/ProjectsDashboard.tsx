@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { DashboardShell } from "@/components/layout/DashboardShell";
+import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog";
 import { ProjectFilters } from "@/components/projects/ProjectFilters";
 import { ProjectFormModal } from "@/components/projects/ProjectFormModal";
 import {
@@ -11,6 +12,11 @@ import {
 } from "@/components/projects/ProjectsTable";
 import { Button } from "@/components/ui/Button";
 import { Project, ProjectStatusFilter } from "@/types/project";
+
+type Feedback = {
+  type: "success" | "error";
+  message: string;
+};
 
 export function ProjectsDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -23,6 +29,9 @@ export function ProjectsDashboard() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [deletingProject, setDeletingProject] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -31,6 +40,18 @@ export function ProjectsDashboard() {
 
     return () => window.clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    if (feedback?.type !== "success") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setFeedback(null);
+    }, 4000);
+
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
 
   useEffect(() => {
     async function loadProjects() {
@@ -89,6 +110,51 @@ export function ProjectsDashboard() {
 
   const handleProjectSaved = () => {
     setRefreshKey((current) => current + 1);
+    setFeedback({ type: "success", message: "Project saved successfully." });
+  };
+
+  const openDeleteDialog = (project: Project) => {
+    setDeletingProject(project);
+  };
+
+  const closeDeleteDialog = () => {
+    if (!isDeleting) {
+      setDeletingProject(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingProject) {
+      return;
+    }
+
+    const projectTitle = deletingProject.title;
+    setIsDeleting(true);
+    setFeedback(null);
+
+    try {
+      const response = await fetch(`/api/projects/${deletingProject.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete project");
+      }
+
+      setDeletingProject(null);
+      setRefreshKey((current) => current + 1);
+      setFeedback({
+        type: "success",
+        message: `"${projectTitle}" was deleted.`,
+      });
+    } catch {
+      setFeedback({
+        type: "error",
+        message: "Failed to delete project. Please try again.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -113,6 +179,18 @@ export function ProjectsDashboard() {
           onStatusChange={setStatus}
         />
 
+        {feedback ? (
+          <div
+            className={
+              feedback.type === "success"
+                ? "rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+                : "rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            }
+          >
+            {feedback.message}
+          </div>
+        ) : null}
+
         {error ? (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
@@ -133,7 +211,12 @@ export function ProjectsDashboard() {
             </p>
           </div>
         ) : (
-          <ProjectsTable projects={projects} onEdit={openEditModal} />
+          <ProjectsTable
+            projects={projects}
+            onEdit={openEditModal}
+            onDelete={openDeleteDialog}
+            deletingProjectId={isDeleting ? deletingProject?.id : null}
+          />
         )}
       </div>
 
@@ -143,6 +226,13 @@ export function ProjectsDashboard() {
         project={editingProject}
         onClose={closeFormModal}
         onSaved={handleProjectSaved}
+      />
+
+      <DeleteProjectDialog
+        project={deletingProject}
+        isDeleting={isDeleting}
+        onClose={closeDeleteDialog}
+        onConfirm={handleDeleteConfirm}
       />
     </DashboardShell>
   );
