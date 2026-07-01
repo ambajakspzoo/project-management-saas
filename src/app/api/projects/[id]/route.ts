@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/api-auth";
 import { serializeProject } from "@/lib/serializers/project";
 import { updateProjectSchema } from "@/lib/validations/project";
 
@@ -49,6 +50,11 @@ function handlePrismaError(error: unknown) {
 }
 
 export async function GET(_request: NextRequest, context: RouteContext) {
+  const { unauthorized } = await requireAuth();
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const { id } = await context.params;
 
@@ -68,6 +74,11 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
+  const { unauthorized } = await requireAuth();
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const { id } = await context.params;
     const body = await request.json();
@@ -90,6 +101,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(_request: NextRequest, context: RouteContext) {
+  const { unauthorized } = await requireAuth();
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const { id } = await context.params;
 

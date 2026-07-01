@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/api-auth";
 import { serializeProject } from "@/lib/serializers/project";
 import {
   createProjectSchema,
@@ -27,6 +28,11 @@ function serverErrorResponse() {
 }
 
 export async function GET(request: NextRequest) {
+  const { unauthorized } = await requireAuth();
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const query = projectListQuerySchema.safeParse({
       status: request.nextUrl.searchParams.get("status") ?? undefined,
@@ -64,6 +70,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { unauthorized } = await requireAuth();
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
     const body = await request.json();
     const parsed = createProjectSchema.safeParse(body);
