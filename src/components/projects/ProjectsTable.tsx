@@ -9,6 +9,8 @@ type ProjectsTableProps = {
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
   deletingProjectId?: string | null;
+  isRefetching?: boolean;
+  disabled?: boolean;
 };
 
 export function ProjectsTable({
@@ -16,9 +18,24 @@ export function ProjectsTable({
   onEdit,
   onDelete,
   deletingProjectId = null,
+  isRefetching = false,
+  disabled = false,
 }: ProjectsTableProps) {
+  const isRowDisabled = disabled || isRefetching;
+
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+    <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white">
+      {isRefetching ? (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-[1px]"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <span className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm text-zinc-600 shadow-sm">
+            Updating projects...
+          </span>
+        </div>
+      ) : null}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-zinc-200 text-sm">
           <thead className="bg-zinc-50">
@@ -74,7 +91,9 @@ export function ProjectsTable({
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(project)}
-                      disabled={deletingProjectId === project.id}
+                      disabled={
+                        isRowDisabled || deletingProjectId === project.id
+                      }
                     >
                       Edit
                     </Button>
@@ -83,7 +102,9 @@ export function ProjectsTable({
                       size="sm"
                       className="text-red-600 hover:bg-red-50 hover:text-red-700"
                       onClick={() => onDelete(project)}
-                      disabled={deletingProjectId === project.id}
+                      disabled={
+                        isRowDisabled || deletingProjectId === project.id
+                      }
                     >
                       Delete
                     </Button>

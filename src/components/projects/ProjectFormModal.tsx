@@ -23,6 +23,7 @@ type ProjectFormModalProps = {
   project: Project | null;
   onClose: () => void;
   onSaved: () => void;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 };
 
 export function ProjectFormModal({
@@ -30,6 +31,7 @@ export function ProjectFormModal({
   project,
   onClose,
   onSaved,
+  onSubmittingChange,
 }: ProjectFormModalProps) {
   const isEditing = project !== null;
   const [values, setValues] = useState<ProjectFormValues>(() =>
@@ -42,6 +44,16 @@ export function ProjectFormModal({
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingTeamMembers, setIsLoadingTeamMembers] = useState(false);
+
+  useEffect(() => {
+    onSubmittingChange?.(isSubmitting);
+  }, [isSubmitting, onSubmittingChange]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      onSubmittingChange?.(false);
+    }
+  }, [isOpen, onSubmittingChange]);
 
   useEffect(() => {
     if (!isOpen) {

@@ -7,6 +7,7 @@ import { Select } from "@/components/ui/Select";
 type ProjectFiltersProps = {
   search: string;
   status: ProjectStatusFilter;
+  disabled?: boolean;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: ProjectStatusFilter) => void;
 };
@@ -21,16 +22,18 @@ const statusOptions: { value: ProjectStatusFilter; label: string }[] = [
 export function ProjectFilters({
   search,
   status,
+  disabled = false,
   onSearchChange,
   onStatusChange,
 }: ProjectFiltersProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-2xl">
       <Input
         label="Search"
         placeholder="Search by title or description..."
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
+        disabled={disabled}
       />
       <Select
         label="Status"
@@ -38,6 +41,7 @@ export function ProjectFilters({
         onChange={(event) =>
           onStatusChange(event.target.value as ProjectStatusFilter)
         }
+        disabled={disabled}
       >
         {statusOptions.map((option) => (
           <option key={option.value} value={option.value}>

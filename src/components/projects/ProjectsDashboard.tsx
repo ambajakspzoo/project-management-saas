@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog";
@@ -11,6 +11,8 @@ import {
   ProjectsTableSkeleton,
 } from "@/components/projects/ProjectsTable";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Project, ProjectStatusFilter } from "@/types/project";
 
 type Feedback = {
@@ -20,10 +22,12 @@ type Feedback = {
 
 export function ProjectsDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const projectsRef = useRef<Project[]>([]);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<ProjectStatusFilter>("ALL");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -31,7 +35,16 @@ export function ProjectsDashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+
+  const isMutating = isDeleting || isSaving;
+  const isBusy = isMutating || isRefetching || isInitialLoading;
+  const hasActiveFilters = search.length > 0 || status !== "ALL";
+
+  useEffect(() => {
+    projectsRef.current = projects;
+  }, [projects]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -55,8 +68,14 @@ export function ProjectsDashboard() {
 
   useEffect(() => {
     async function loadProjects() {
-      setIsLoading(true);
-      setError(null);
+      const isRefetch = projectsRef.current.length > 0;
+
+      if (isRefetch) {
+        setIsRefetching(true);
+      } else {
+        setIsInitialLoading(true);
+        setError(null);
+      }
 
       try {
         const params = new URLSearchParams();
@@ -80,16 +99,34 @@ export function ProjectsDashboard() {
 
         const data: Project[] = await response.json();
         setProjects(data);
+        setError(null);
       } catch {
-        setError("Failed to load projects. Please try again.");
-        setProjects([]);
+        if (projectsRef.current.length === 0) {
+          setError("Failed to load projects. Please try again.");
+          setProjects([]);
+        } else {
+          setFeedback({
+            type: "error",
+            message: "Failed to refresh projects. Showing the last loaded data.",
+          });
+        }
       } finally {
-        setIsLoading(false);
+        setIsInitialLoading(false);
+        setIsRefetching(false);
       }
     }
 
     loadProjects();
   }, [status, debouncedSearch, refreshKey]);
+
+  const retryLoad = () => {
+    setRefreshKey((current) => current + 1);
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatus("ALL");
+  };
 
   const openCreateModal = () => {
     setEditingProject(null);
@@ -104,8 +141,10 @@ export function ProjectsDashboard() {
   };
 
   const closeFormModal = () => {
-    setIsFormOpen(false);
-    setEditingProject(null);
+    if (!isSaving) {
+      setIsFormOpen(false);
+      setEditingProject(null);
+    }
   };
 
   const handleProjectSaved = () => {
@@ -169,18 +208,22 @@ export function ProjectsDashboard() {
               Track status, deadlines, budgets, and assigned team members.
             </p>
           </div>
-          <Button onClick={openCreateModal}>Add Project</Button>
+          <Button onClick={openCreateModal} disabled={isBusy}>
+            Add Project
+          </Button>
         </div>
 
         <ProjectFilters
           search={search}
           status={status}
+          disabled={isMutating || isInitialLoading}
           onSearchChange={setSearch}
           onStatusChange={setStatus}
         />
 
         {feedback ? (
           <div
+            role="status"
             className={
               feedback.type === "success"
                 ? "rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
@@ -191,31 +234,47 @@ export function ProjectsDashboard() {
           </div>
         ) : null}
 
-        {error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        ) : null}
-
-        {isLoading ? (
+        {isInitialLoading ? (
           <ProjectsTableSkeleton />
+        ) : error ? (
+          <ErrorMessage message={error} onRetry={retryLoad} />
         ) : projects.length === 0 ? (
-          <div className="rounded-xl border border-zinc-200 bg-white px-6 py-12 text-center">
-            <p className="text-sm font-medium text-zinc-900">
-              No projects found
-            </p>
-            <p className="mt-1 text-sm text-zinc-500">
-              {search || status !== "ALL"
-                ? "Try adjusting your search or filters."
-                : "Get started by adding your first project."}
-            </p>
-          </div>
+          <EmptyState
+            title="No projects found"
+            description={
+              hasActiveFilters
+                ? "No projects match your current search or status filter."
+                : "Get started by adding your first project to the dashboard."
+            }
+            action={
+              hasActiveFilters
+                ? { label: "Clear filters", onClick: clearFilters }
+                : { label: "Add project", onClick: openCreateModal }
+            }
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-6 w-6"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 7h16M4 12h16M4 17h10"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            }
+          />
         ) : (
           <ProjectsTable
             projects={projects}
             onEdit={openEditModal}
             onDelete={openDeleteDialog}
             deletingProjectId={isDeleting ? deletingProject?.id : null}
+            isRefetching={isRefetching}
+            disabled={isMutating}
           />
         )}
       </div>
@@ -226,6 +285,7 @@ export function ProjectsDashboard() {
         project={editingProject}
         onClose={closeFormModal}
         onSaved={handleProjectSaved}
+        onSubmittingChange={setIsSaving}
       />
 
       <DeleteProjectDialog
