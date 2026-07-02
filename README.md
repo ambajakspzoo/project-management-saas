@@ -192,7 +192,7 @@ docker run --rm -p 3000:3000 \
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
-| `npm test` | Run API integration tests (Vitest) |
+| `npm test` | Run unit and integration tests (Vitest) |
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run db:push` | Push Prisma schema to database |
 | `npm run db:seed` | Seed sample data |
