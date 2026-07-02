@@ -20,3 +20,12 @@ export type Project = {
 };
 
 export type ProjectStatusFilter = ProjectStatus | "ALL";
+
+export type ProjectListSortField =
+  | "title"
+  | "status"
+  | "deadline"
+  | "budget"
+  | "assignee";
+
+export type ProjectListSortOrder = "asc" | "desc";

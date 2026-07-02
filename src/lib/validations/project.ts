@@ -3,11 +3,23 @@ import { z } from "zod";
 
 export const projectStatusSchema = z.nativeEnum(ProjectStatus);
 
+export const projectListSortFieldSchema = z.enum([
+  "title",
+  "status",
+  "deadline",
+  "budget",
+  "assignee",
+]);
+
+export const projectListSortOrderSchema = z.enum(["asc", "desc"]);
+
 export const projectListQuerySchema = z.object({
   status: projectStatusSchema.optional(),
   search: z.string().trim().min(1).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
+  sort: projectListSortFieldSchema.default("deadline"),
+  order: projectListSortOrderSchema.default("asc"),
 });
 
 export const createProjectSchema = z.object({

@@ -1,5 +1,10 @@
 import { Prisma, ProjectStatus } from "@prisma/client";
 
+import type {
+  ProjectListSortField,
+  ProjectListSortOrder,
+} from "@/types/project";
+
 export function buildProjectWhereInput({
   status,
   search,
@@ -21,4 +26,15 @@ export function buildProjectWhereInput({
   }
 
   return where;
+}
+
+export function buildProjectOrderBy(
+  sort: ProjectListSortField,
+  order: ProjectListSortOrder,
+): Prisma.ProjectOrderByWithRelationInput {
+  if (sort === "assignee") {
+    return { teamMember: { name: order } };
+  }
+
+  return { [sort]: order };
 }

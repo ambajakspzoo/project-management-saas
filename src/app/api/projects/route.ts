@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
-import { buildProjectWhereInput } from "@/lib/projects/query";
+import { buildProjectOrderBy, buildProjectWhereInput } from "@/lib/projects/query";
 import { serializeProject } from "@/lib/serializers/project";
 import {
   createProjectSchema,
@@ -40,21 +40,24 @@ export async function GET(request: NextRequest) {
       search: request.nextUrl.searchParams.get("search") ?? undefined,
       page: request.nextUrl.searchParams.get("page") ?? undefined,
       limit: request.nextUrl.searchParams.get("limit") ?? undefined,
+      sort: request.nextUrl.searchParams.get("sort") ?? undefined,
+      order: request.nextUrl.searchParams.get("order") ?? undefined,
     });
 
     if (!query.success) {
       return validationErrorResponse(query.error);
     }
 
-    const { status, search, page, limit } = query.data;
+    const { status, search, page, limit, sort, order } = query.data;
     const where = buildProjectWhereInput({ status, search });
+    const orderBy = buildProjectOrderBy(sort, order);
     const skip = (page - 1) * limit;
 
     const [projects, total] = await Promise.all([
       prisma.project.findMany({
         where,
         include: { teamMember: true },
-        orderBy: { deadline: "asc" },
+        orderBy,
         skip,
         take: limit,
       }),

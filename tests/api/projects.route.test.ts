@@ -141,6 +141,55 @@ describe("GET /api/projects", () => {
     expect(body.error).toBe("Validation failed");
     expect(prisma.project.findMany).not.toHaveBeenCalled();
   });
+
+  it("applies sorting query params", async () => {
+    vi.mocked(requireAuth).mockResolvedValue(mockAuthenticatedSession());
+    vi.mocked(prisma.project.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.project.count).mockResolvedValue(0);
+
+    await GET(
+      createApiRequest("/api/projects?sort=deadline&order=asc"),
+    );
+
+    expect(prisma.project.findMany).toHaveBeenCalledWith({
+      where: {},
+      include: { teamMember: true },
+      orderBy: { deadline: "asc" },
+      skip: 0,
+      take: 10,
+    });
+  });
+
+  it("sorts by assignee using the team member relation", async () => {
+    vi.mocked(requireAuth).mockResolvedValue(mockAuthenticatedSession());
+    vi.mocked(prisma.project.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.project.count).mockResolvedValue(0);
+
+    await GET(
+      createApiRequest("/api/projects?sort=assignee&order=desc"),
+    );
+
+    expect(prisma.project.findMany).toHaveBeenCalledWith({
+      where: {},
+      include: { teamMember: true },
+      orderBy: { teamMember: { name: "desc" } },
+      skip: 0,
+      take: 10,
+    });
+  });
+
+  it("returns 400 for invalid sort query", async () => {
+    vi.mocked(requireAuth).mockResolvedValue(mockAuthenticatedSession());
+
+    const response = await GET(
+      createApiRequest("/api/projects?sort=invalid&order=asc"),
+    );
+    const { status, body } = await readJsonResponse<{ error: string }>(response);
+
+    expect(status).toBe(400);
+    expect(body.error).toBe("Validation failed");
+    expect(prisma.project.findMany).not.toHaveBeenCalled();
+  });
 });
 
 describe("POST /api/projects", () => {

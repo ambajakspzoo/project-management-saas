@@ -13,8 +13,17 @@ import {
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
-import { PROJECTS_PAGE_SIZE } from "@/lib/projects/constants";
-import { Project, ProjectStatusFilter } from "@/types/project";
+import {
+  DEFAULT_PROJECT_SORT,
+  DEFAULT_PROJECT_SORT_ORDER,
+  PROJECTS_PAGE_SIZE,
+} from "@/lib/projects/constants";
+import {
+  Project,
+  ProjectListSortField,
+  ProjectListSortOrder,
+  ProjectStatusFilter,
+} from "@/types/project";
 
 type Feedback = {
   type: "success" | "error";
@@ -29,6 +38,10 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
   const [status, setStatus] = useState<ProjectStatusFilter>("ALL");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [sort, setSort] = useState<ProjectListSortField>(DEFAULT_PROJECT_SORT);
+  const [order, setOrder] = useState<ProjectListSortOrder>(
+    DEFAULT_PROJECT_SORT_ORDER,
+  );
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +110,8 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
 
         params.set("page", String(page));
         params.set("limit", String(PROJECTS_PAGE_SIZE));
+        params.set("sort", sort);
+        params.set("order", order);
 
         const query = params.toString();
         const response = await fetch(
@@ -136,7 +151,17 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
     }
 
     loadProjects();
-  }, [status, debouncedSearch, page, refreshKey]);
+  }, [status, debouncedSearch, page, sort, order, refreshKey]);
+
+  const handleSortChange = (field: ProjectListSortField) => {
+    if (sort === field) {
+      setOrder((current) => (current === "asc" ? "desc" : "asc"));
+    } else {
+      setSort(field);
+      setOrder("asc");
+    }
+    setPage(1);
+  };
 
   const retryLoad = () => {
     setRefreshKey((current) => current + 1);
@@ -299,6 +324,9 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
             pageSize={PROJECTS_PAGE_SIZE}
             totalCount={totalCount}
             onPageChange={setPage}
+            sort={sort}
+            order={order}
+            onSortChange={handleSortChange}
           />
         )}
       </div>

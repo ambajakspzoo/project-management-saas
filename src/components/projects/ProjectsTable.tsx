@@ -1,5 +1,10 @@
 import { formatBudget, formatDeadline } from "@/lib/format";
-import { Project } from "@/types/project";
+import { cn } from "@/lib/utils";
+import {
+  Project,
+  ProjectListSortField,
+  ProjectListSortOrder,
+} from "@/types/project";
 
 import { Button } from "@/components/ui/Button";
 import { Pagination } from "@/components/ui/Pagination";
@@ -16,7 +21,74 @@ type ProjectsTableProps = {
   pageSize?: number;
   totalCount?: number;
   onPageChange?: (page: number) => void;
+  sort?: ProjectListSortField;
+  order?: ProjectListSortOrder;
+  onSortChange?: (field: ProjectListSortField) => void;
 };
+
+const sortableColumns: {
+  field: ProjectListSortField;
+  label: string;
+}[] = [
+  { field: "title", label: "Title" },
+  { field: "status", label: "Status" },
+  { field: "deadline", label: "Deadline" },
+  { field: "assignee", label: "Assignee" },
+  { field: "budget", label: "Budget" },
+];
+
+function SortableColumnHeader({
+  label,
+  field,
+  sort,
+  order,
+  onSortChange,
+  disabled,
+}: {
+  label: string;
+  field: ProjectListSortField;
+  sort?: ProjectListSortField;
+  order?: ProjectListSortOrder;
+  onSortChange?: (field: ProjectListSortField) => void;
+  disabled: boolean;
+}) {
+  const isActive = sort === field;
+  const ariaSort = isActive
+    ? order === "asc"
+      ? "ascending"
+      : "descending"
+    : "none";
+
+  if (!onSortChange) {
+    return (
+      <th className="px-4 py-3 text-left font-medium text-zinc-600">{label}</th>
+    );
+  }
+
+  return (
+    <th
+      aria-sort={ariaSort}
+      className="px-4 py-3 text-left font-medium text-zinc-600"
+    >
+      <button
+        type="button"
+        onClick={() => onSortChange(field)}
+        disabled={disabled}
+        className={cn(
+          "inline-flex items-center gap-1 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/10 disabled:cursor-not-allowed disabled:opacity-50",
+          isActive ? "text-zinc-900" : "text-zinc-600 hover:text-zinc-900",
+        )}
+      >
+        <span>{label}</span>
+        {isActive ? (
+          <span aria-hidden="true" className="text-xs text-zinc-500">
+            {order === "asc" ? "↑" : "↓"}
+          </span>
+        ) : null}
+      </button>
+    </th>
+  );
+}
 
 export function ProjectsTable({
   projects,
@@ -29,8 +101,12 @@ export function ProjectsTable({
   pageSize,
   totalCount,
   onPageChange,
+  sort,
+  order,
+  onSortChange,
 }: ProjectsTableProps) {
   const isRowDisabled = disabled || isRefetching;
+  const isHeaderDisabled = disabled || isRefetching;
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white">
@@ -49,21 +125,17 @@ export function ProjectsTable({
         <table className="min-w-full divide-y divide-zinc-200 text-sm">
           <thead className="bg-zinc-50">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-zinc-600">
-                Title
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-600">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-600">
-                Deadline
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-600">
-                Assignee
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-600">
-                Budget
-              </th>
+              {sortableColumns.map((column) => (
+                <SortableColumnHeader
+                  key={column.field}
+                  label={column.label}
+                  field={column.field}
+                  sort={sort}
+                  order={order}
+                  onSortChange={onSortChange}
+                  disabled={isHeaderDisabled}
+                />
+              ))}
               <th className="px-4 py-3 text-right font-medium text-zinc-600">
                 Actions
               </th>

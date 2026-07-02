@@ -62,4 +62,33 @@ describe("ProjectsTable", () => {
     expect(screen.getByRole("button", { name: "Edit" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled();
   });
+
+  it("calls onSortChange when a sortable column header is clicked", async () => {
+    const user = userEvent.setup();
+    const onSortChange = vi.fn();
+
+    renderProjectsTable({
+      sort: "deadline",
+      order: "asc",
+      onSortChange,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Budget" }));
+
+    expect(onSortChange).toHaveBeenCalledWith("budget");
+  });
+
+  it("shows the active sort direction on the current column", () => {
+    renderProjectsTable({
+      sort: "deadline",
+      order: "desc",
+      onSortChange: vi.fn(),
+    });
+
+    expect(screen.getByRole("columnheader", { name: "Deadline" })).toHaveAttribute(
+      "aria-sort",
+      "descending",
+    );
+    expect(screen.getByRole("button", { name: "Deadline" })).toHaveTextContent("↓");
+  });
 });
