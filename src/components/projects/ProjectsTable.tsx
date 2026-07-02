@@ -2,6 +2,7 @@ import { formatBudget, formatDeadline } from "@/lib/format";
 import { Project } from "@/types/project";
 
 import { Button } from "@/components/ui/Button";
+import { Pagination } from "@/components/ui/Pagination";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 type ProjectsTableProps = {
@@ -11,6 +12,10 @@ type ProjectsTableProps = {
   deletingProjectId?: string | null;
   isRefetching?: boolean;
   disabled?: boolean;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
+  onPageChange?: (page: number) => void;
 };
 
 export function ProjectsTable({
@@ -20,6 +25,10 @@ export function ProjectsTable({
   deletingProjectId = null,
   isRefetching = false,
   disabled = false,
+  page,
+  pageSize,
+  totalCount,
+  onPageChange,
 }: ProjectsTableProps) {
   const isRowDisabled = disabled || isRefetching;
 
@@ -115,6 +124,16 @@ export function ProjectsTable({
           </tbody>
         </table>
       </div>
+      {page && pageSize && totalCount !== undefined && onPageChange ? (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          onPageChange={onPageChange}
+          disabled={disabled || isRefetching}
+          itemLabel="projects"
+        />
+      ) : null}
     </div>
   );
 }

@@ -209,13 +209,16 @@ Sign in via the browser first, or use a session cookie from a logged-in session 
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/projects` | List all projects (includes `teamMember`) |
+| `GET` | `/api/projects` | List projects (paginated; includes `teamMember`) |
+| `GET` | `/api/projects?page=1&limit=10` | Paginate results (`page` defaults to `1`, `limit` defaults to `10`, max `100`) |
 | `GET` | `/api/projects?status=ACTIVE` | Filter by status (`ACTIVE`, `ON_HOLD`, `COMPLETED`) |
 | `GET` | `/api/projects?search=portal` | Search title/description (case-insensitive) |
 | `POST` | `/api/projects` | Create a project |
 | `GET` | `/api/projects/:id` | Get a single project |
 | `PATCH` | `/api/projects/:id` | Update a project (partial) |
 | `DELETE` | `/api/projects/:id` | Delete a project |
+
+**List response headers:** `X-Total-Count` (total matching rows), `X-Page`, `X-Limit`.
 
 **Create / update body:**
 

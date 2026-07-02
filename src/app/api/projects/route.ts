@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
+import { buildProjectWhereInput } from "@/lib/projects/query";
 import { serializeProject } from "@/lib/serializers/project";
 import {
   createProjectSchema,
@@ -37,33 +38,36 @@ export async function GET(request: NextRequest) {
     const query = projectListQuerySchema.safeParse({
       status: request.nextUrl.searchParams.get("status") ?? undefined,
       search: request.nextUrl.searchParams.get("search") ?? undefined,
+      page: request.nextUrl.searchParams.get("page") ?? undefined,
+      limit: request.nextUrl.searchParams.get("limit") ?? undefined,
     });
 
     if (!query.success) {
       return validationErrorResponse(query.error);
     }
 
-    const { status, search } = query.data;
-    const where: Prisma.ProjectWhereInput = {};
+    const { status, search, page, limit } = query.data;
+    const where = buildProjectWhereInput({ status, search });
+    const skip = (page - 1) * limit;
 
-    if (status) {
-      where.status = status;
-    }
+    const [projects, total] = await Promise.all([
+      prisma.project.findMany({
+        where,
+        include: { teamMember: true },
+        orderBy: { deadline: "asc" },
+        skip,
+        take: limit,
+      }),
+      prisma.project.count({ where }),
+    ]);
 
-    if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
-    }
-
-    const projects = await prisma.project.findMany({
-      where,
-      include: { teamMember: true },
-      orderBy: { deadline: "asc" },
+    return NextResponse.json(projects.map(serializeProject), {
+      headers: {
+        "X-Total-Count": String(total),
+        "X-Page": String(page),
+        "X-Limit": String(limit),
+      },
     });
-
-    return NextResponse.json(projects.map(serializeProject));
   } catch {
     return serverErrorResponse();
   }

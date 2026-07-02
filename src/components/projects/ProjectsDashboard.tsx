@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
+import { PROJECTS_PAGE_SIZE } from "@/lib/projects/constants";
 import { Project, ProjectStatusFilter } from "@/types/project";
 
 type Feedback = {
@@ -26,6 +27,8 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<ProjectStatusFilter>("ALL");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +56,10 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
 
     return () => window.clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [status, debouncedSearch]);
 
   useEffect(() => {
     if (feedback?.type !== "success") {
@@ -88,6 +95,9 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
           params.set("search", debouncedSearch);
         }
 
+        params.set("page", String(page));
+        params.set("limit", String(PROJECTS_PAGE_SIZE));
+
         const query = params.toString();
         const response = await fetch(
           `/api/projects${query ? `?${query}` : ""}`,
@@ -97,8 +107,17 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
           throw new Error("Failed to load projects");
         }
 
+        const total = Number(response.headers.get("X-Total-Count") ?? "0");
+        const totalPages = Math.max(1, Math.ceil(total / PROJECTS_PAGE_SIZE));
+
+        if (page > totalPages) {
+          setPage(totalPages);
+          return;
+        }
+
         const data: Project[] = await response.json();
         setProjects(data);
+        setTotalCount(total);
         setError(null);
       } catch {
         if (projectsRef.current.length === 0) {
@@ -117,7 +136,7 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
     }
 
     loadProjects();
-  }, [status, debouncedSearch, refreshKey]);
+  }, [status, debouncedSearch, page, refreshKey]);
 
   const retryLoad = () => {
     setRefreshKey((current) => current + 1);
@@ -126,6 +145,7 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
   const clearFilters = () => {
     setSearch("");
     setStatus("ALL");
+    setPage(1);
   };
 
   const openCreateModal = () => {
@@ -238,7 +258,7 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
           <ProjectsTableSkeleton />
         ) : error ? (
           <ErrorMessage message={error} onRetry={retryLoad} />
-        ) : projects.length === 0 ? (
+        ) : totalCount === 0 ? (
           <EmptyState
             title="No projects found"
             description={
@@ -275,6 +295,10 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
             deletingProjectId={isDeleting ? deletingProject?.id : null}
             isRefetching={isRefetching}
             disabled={isMutating}
+            page={page}
+            pageSize={PROJECTS_PAGE_SIZE}
+            totalCount={totalCount}
+            onPageChange={setPage}
           />
         )}
       </div>
