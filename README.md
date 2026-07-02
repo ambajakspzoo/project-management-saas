@@ -224,29 +224,90 @@ prisma/
 
 ## Deployment
 
-### Vercel + Supabase (recommended)
+Deploy the Next.js app to [Vercel](https://vercel.com) with a hosted PostgreSQL database on [Supabase](https://supabase.com).
+
+### Production checklist
+
+Before going live, confirm:
+
+- [ ] `DATABASE_URL` uses the Supabase **Transaction pooler** URL (port `6543`), not the direct connection
+- [ ] `AUTH_SECRET` is a strong random value (`openssl rand -base64 32`)
+- [ ] `AUTH_URL` matches your production domain exactly (e.g. `https://your-app.vercel.app`, no trailing slash)
+- [ ] `AUTH_DEMO_EMAIL` / `AUTH_DEMO_PASSWORD` are changed from defaults
+- [ ] Schema has been pushed to production (`prisma db push` or `prisma migrate deploy`)
+- [ ] Seed data loaded if you want demo projects in production
+- [ ] Vercel environment variables are set for **Production** (not just Preview)
+
+### Vercel environment variables
+
+| Variable | Required | Example |
+|----------|----------|---------|
+| `DATABASE_URL` | Yes | `postgresql://postgres.[ref]:[pass]@...pooler.supabase.com:6543/postgres?pgbouncer=true` |
+| `AUTH_SECRET` | Yes | Output of `openssl rand -base64 32` |
+| `AUTH_URL` | Yes | `https://your-app.vercel.app` |
+| `AUTH_DEMO_EMAIL` | Yes | Your admin email |
+| `AUTH_DEMO_PASSWORD` | Yes | Strong password |
+| `NEXTAUTH_SECRET` | Optional | Same as `AUTH_SECRET` |
+| `NEXTAUTH_URL` | Optional | Same as `AUTH_URL` |
+
+### Step-by-step: Vercel + Supabase
+
+#### 1. Supabase database
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to **Project Settings → Database**
+3. Copy the **Transaction pooler** connection string (URI, port `6543`)
+4. Append `?pgbouncer=true` if not already present
+
+#### 2. Push schema and seed (one-time)
+
+From your machine, using the production `DATABASE_URL`:
+
+```bash
+DATABASE_URL="postgresql://..." npx prisma db push
+DATABASE_URL="postgresql://..." npx prisma db seed
+```
+
+For migration-based workflows in production, use `npx prisma migrate deploy` instead of `db push`.
+
+#### 3. Deploy to Vercel
 
 1. Push the repo to GitHub
-2. Create a [Supabase](https://supabase.com) project and copy the **connection pooler** URL
-3. Import the repo in [Vercel](https://vercel.com)
-4. Set environment variables in Vercel:
-   - `DATABASE_URL` — Supabase pooler URL
-   - `AUTH_SECRET` — generate with `openssl rand -base64 32`
-   - `AUTH_URL` — your production URL (e.g. `https://your-app.vercel.app`)
-   - `AUTH_DEMO_EMAIL` / `AUTH_DEMO_PASSWORD` — login credentials
-5. Deploy — `postinstall` runs `prisma generate` automatically
-6. Run migrations against production once:
+2. Import the project at [vercel.com/new](https://vercel.com/new)
+3. Vercel auto-detects Next.js — `vercel.json` ensures `prisma generate` runs before build
+4. Add all environment variables from the table above
+5. Deploy
 
-   ```bash
-   DATABASE_URL="<production-url>" npx prisma db push
-   DATABASE_URL="<production-url>" npx prisma db seed
-   ```
+#### 4. Verify production
 
-### Production notes
+1. Open your Vercel URL — you should be redirected to `/login`
+2. Sign in with your `AUTH_DEMO_EMAIL` / `AUTH_DEMO_PASSWORD`
+3. Confirm projects load and CRUD works
 
-- Use the Supabase **pooler** URL for `DATABASE_URL` in serverless environments
-- Set `AUTH_URL` to your exact production domain (no trailing slash)
-- Change demo credentials before going live
+### `vercel.json`
+
+The included `vercel.json`:
+
+- Runs `npm run db:generate` before `npm run build` (in addition to `postinstall`)
+- Sets `Cache-Control: no-store` on API routes so authenticated responses are not cached
+
+### Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| `MissingSecret` on deploy | Set `AUTH_SECRET` in Vercel env vars |
+| `Can't reach database server` | Use Supabase **pooler** URL, not direct; check IP allowlist |
+| Login works locally but not on Vercel | Set `AUTH_URL` to the exact production URL |
+| Build fails on Prisma | Ensure `DATABASE_URL` is set in Vercel build env |
+| Empty project list | Run `prisma db push` and `db seed` against production DB |
+
+### Alternative hosts
+
+The app is a standard Next.js 16 project. It can also run on Railway, Render, or any Node host that supports:
+
+- Node.js 18+
+- Environment variables for `DATABASE_URL` and auth secrets
+- `npm run build` && `npm run start`
 
 ## License
 
