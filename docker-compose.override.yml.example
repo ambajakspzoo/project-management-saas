@@ -1,0 +1,16 @@
+# Copy to docker-compose.override.yml to customize local ports
+# when 3000 or 5432 are already in use on your machine.
+#
+#   cp docker-compose.override.yml.example docker-compose.override.yml
+
+services:
+  db:
+    ports:
+      - "5433:5432"
+
+  app:
+    ports:
+      - "3001:3000"
+    environment:
+      AUTH_URL: http://localhost:3001
+      NEXTAUTH_URL: http://localhost:3001

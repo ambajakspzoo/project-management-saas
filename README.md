@@ -109,6 +109,69 @@ Open [http://localhost:3000](http://localhost:3000).
 - Email: `admin@example.com`
 - Password: `password`
 
+## Docker (local full stack)
+
+Run the app and PostgreSQL together with one command:
+
+```bash
+docker compose up --build
+```
+
+Open [http://localhost:3000](http://localhost:3000) and sign in with `admin@example.com` / `password`.
+
+The `app` service automatically runs `db:push`, `db:seed`, and starts the dev server. Postgres data is stored in a Docker volume (`postgres_data`).
+
+### Useful Docker commands
+
+```bash
+# Run in the background
+docker compose up --build -d
+
+# View logs
+docker compose logs -f app
+
+# Run database commands inside the app container
+docker compose exec app npm run db:push
+docker compose exec app npm run db:seed
+docker compose exec app npx prisma studio
+
+# Stop services
+docker compose down
+
+# Stop and remove database volume (fresh start)
+docker compose down -v
+```
+
+### Port conflicts
+
+If port `5432` or `3000` is already in use (e.g. an existing `pm-postgres` container), either stop the other service:
+
+```bash
+docker stop pm-postgres
+```
+
+Or copy the override example to use different host ports:
+
+```bash
+cp docker-compose.override.yml.example docker-compose.override.yml
+docker compose up --build
+```
+
+Then open [http://localhost:3001](http://localhost:3001) instead.
+
+### Production image (optional)
+
+```bash
+docker build --target runner -t project-management .
+docker run --rm -p 3000:3000 \
+  -e DATABASE_URL="postgresql://postgres:postgres@host.docker.internal:5432/project_management" \
+  -e AUTH_SECRET="your-secret" \
+  -e AUTH_URL="http://localhost:3000" \
+  -e AUTH_DEMO_EMAIL="admin@example.com" \
+  -e AUTH_DEMO_PASSWORD="password" \
+  project-management
+```
+
 ## Usage
 
 ### Dashboard
@@ -125,6 +188,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Script | Description |
 |--------|-------------|
 | `npm run dev` | Start development server |
+| `npm run dev:docker` | Start dev server bound to `0.0.0.0` (Docker) |
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
