@@ -1,11 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  DELETE,
-  GET,
-  PATCH,
-} from "@/app/api/projects/[id]/route";
+import { DELETE, GET, PATCH } from "@/app/api/projects/[id]/route";
 import { requireAuth } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
@@ -47,7 +43,9 @@ describe("GET /api/projects/[id]", () => {
       createApiRequest("/api/projects/project-1"),
       routeContext,
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(401);
     expect(body.error).toBe("Unauthorized");
@@ -71,11 +69,12 @@ describe("GET /api/projects/[id]", () => {
     vi.mocked(requireAuth).mockResolvedValue(mockAuthenticatedSession());
     vi.mocked(prisma.project.findUnique).mockResolvedValue(null);
 
-    const response = await GET(
-      createApiRequest("/api/projects/missing"),
-      { params: Promise.resolve({ id: "missing" }) },
+    const response = await GET(createApiRequest("/api/projects/missing"), {
+      params: Promise.resolve({ id: "missing" }),
+    });
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
 
     expect(status).toBe(404);
     expect(body.error).toBe("Project not found");
@@ -103,7 +102,9 @@ describe("PATCH /api/projects/[id]", () => {
       }),
       routeContext,
     );
-    const { status, body } = await readJsonResponse<{ title: string }>(response);
+    const { status, body } = await readJsonResponse<{ title: string }>(
+      response,
+    );
 
     expect(status).toBe(200);
     expect(body.title).toBe("Updated Title");
@@ -120,7 +121,9 @@ describe("PATCH /api/projects/[id]", () => {
       }),
       routeContext,
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(400);
     expect(body.error).toBe("Validation failed");
@@ -144,7 +147,9 @@ describe("PATCH /api/projects/[id]", () => {
       }),
       { params: Promise.resolve({ id: "missing" }) },
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(404);
     expect(body.error).toBe("Project not found");
@@ -166,7 +171,9 @@ describe("DELETE /api/projects/[id]", () => {
       }),
       routeContext,
     );
-    const { status, body } = await readJsonResponse<{ message: string }>(response);
+    const { status, body } = await readJsonResponse<{ message: string }>(
+      response,
+    );
 
     expect(status).toBe(200);
     expect(body.message).toBe("Project deleted");
@@ -190,7 +197,9 @@ describe("DELETE /api/projects/[id]", () => {
       }),
       { params: Promise.resolve({ id: "missing" }) },
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(404);
     expect(body.error).toBe("Project not found");

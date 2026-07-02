@@ -34,7 +34,8 @@ type ProjectSeed = {
 const projectData: ProjectSeed[] = [
   {
     title: "Customer Portal Redesign",
-    description: "Modernize the self-service portal with a new UI and improved onboarding.",
+    description:
+      "Modernize the self-service portal with a new UI and improved onboarding.",
     status: ProjectStatus.ACTIVE,
     deadlineDays: 45,
     budget: "85000.00",
@@ -58,7 +59,8 @@ const projectData: ProjectSeed[] = [
   },
   {
     title: "Data Warehouse ETL",
-    description: "Pipeline for nightly analytics ingestion from production DBs.",
+    description:
+      "Pipeline for nightly analytics ingestion from production DBs.",
     status: ProjectStatus.ACTIVE,
     deadlineDays: 60,
     budget: "67500.00",
@@ -205,7 +207,9 @@ async function main() {
     prisma.project.count(),
   ]);
 
-  console.log(`Seeded ${memberCount} team members and ${projectCount} projects.`);
+  console.log(
+    `Seeded ${memberCount} team members and ${projectCount} projects.`,
+  );
 }
 
 main()

@@ -26,10 +26,7 @@ function notFoundResponse() {
 }
 
 function serverErrorResponse() {
-  return NextResponse.json(
-    { error: "Internal server error" },
-    { status: 500 },
-  );
+  return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 }
 
 function handlePrismaError(error: unknown) {

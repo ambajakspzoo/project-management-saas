@@ -36,7 +36,9 @@ describe("GET /api/projects", () => {
     vi.mocked(requireAuth).mockResolvedValue(mockUnauthorizedResponse());
 
     const response = await GET(createApiRequest("/api/projects"));
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(401);
     expect(body.error).toBe("Unauthorized");
@@ -49,7 +51,8 @@ describe("GET /api/projects", () => {
     vi.mocked(prisma.project.count).mockResolvedValue(1);
 
     const response = await GET(createApiRequest("/api/projects"));
-    const { status, body } = await readJsonResponse<typeof mockProject[]>(response);
+    const { status, body } =
+      await readJsonResponse<(typeof mockProject)[]>(response);
 
     expect(status).toBe(200);
     expect(body).toHaveLength(1);
@@ -66,9 +69,7 @@ describe("GET /api/projects", () => {
     vi.mocked(prisma.project.findMany).mockResolvedValue([]);
     vi.mocked(prisma.project.count).mockResolvedValue(0);
 
-    await GET(
-      createApiRequest("/api/projects?status=ACTIVE&search=portal"),
-    );
+    await GET(createApiRequest("/api/projects?status=ACTIVE&search=portal"));
 
     expect(prisma.project.findMany).toHaveBeenCalledWith({
       where: {
@@ -121,7 +122,9 @@ describe("GET /api/projects", () => {
     const response = await GET(
       createApiRequest("/api/projects?page=0&limit=10"),
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(400);
     expect(body.error).toBe("Validation failed");
@@ -135,7 +138,9 @@ describe("GET /api/projects", () => {
     const response = await GET(
       createApiRequest("/api/projects?status=INVALID"),
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(400);
     expect(body.error).toBe("Validation failed");
@@ -147,9 +152,7 @@ describe("GET /api/projects", () => {
     vi.mocked(prisma.project.findMany).mockResolvedValue([]);
     vi.mocked(prisma.project.count).mockResolvedValue(0);
 
-    await GET(
-      createApiRequest("/api/projects?sort=deadline&order=asc"),
-    );
+    await GET(createApiRequest("/api/projects?sort=deadline&order=asc"));
 
     expect(prisma.project.findMany).toHaveBeenCalledWith({
       where: {},
@@ -165,9 +168,7 @@ describe("GET /api/projects", () => {
     vi.mocked(prisma.project.findMany).mockResolvedValue([]);
     vi.mocked(prisma.project.count).mockResolvedValue(0);
 
-    await GET(
-      createApiRequest("/api/projects?sort=assignee&order=desc"),
-    );
+    await GET(createApiRequest("/api/projects?sort=assignee&order=desc"));
 
     expect(prisma.project.findMany).toHaveBeenCalledWith({
       where: {},
@@ -184,7 +185,9 @@ describe("GET /api/projects", () => {
     const response = await GET(
       createApiRequest("/api/projects?sort=invalid&order=asc"),
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(400);
     expect(body.error).toBe("Validation failed");
@@ -207,7 +210,9 @@ describe("POST /api/projects", () => {
         headers: { "Content-Type": "application/json" },
       }),
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(401);
     expect(body.error).toBe("Unauthorized");
@@ -232,7 +237,9 @@ describe("POST /api/projects", () => {
         headers: { "Content-Type": "application/json" },
       }),
     );
-    const { status, body } = await readJsonResponse<{ title: string }>(response);
+    const { status, body } = await readJsonResponse<{ title: string }>(
+      response,
+    );
 
     expect(status).toBe(201);
     expect(body.title).toBe(mockProject.title);
@@ -259,7 +266,9 @@ describe("POST /api/projects", () => {
         headers: { "Content-Type": "application/json" },
       }),
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(400);
     expect(body.error).toBe("Validation failed");
@@ -269,10 +278,13 @@ describe("POST /api/projects", () => {
   it("returns 400 when team member does not exist", async () => {
     vi.mocked(requireAuth).mockResolvedValue(mockAuthenticatedSession());
     vi.mocked(prisma.project.create).mockRejectedValue(
-      new Prisma.PrismaClientKnownRequestError("Foreign key constraint failed", {
-        code: "P2003",
-        clientVersion: "6.19.3",
-      }),
+      new Prisma.PrismaClientKnownRequestError(
+        "Foreign key constraint failed",
+        {
+          code: "P2003",
+          clientVersion: "6.19.3",
+        },
+      ),
     );
 
     const response = await POST(
@@ -288,7 +300,9 @@ describe("POST /api/projects", () => {
         headers: { "Content-Type": "application/json" },
       }),
     );
-    const { status, body } = await readJsonResponse<{ error: string }>(response);
+    const { status, body } = await readJsonResponse<{ error: string }>(
+      response,
+    );
 
     expect(status).toBe(400);
     expect(body.error).toBe("Team member not found");

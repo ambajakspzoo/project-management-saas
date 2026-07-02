@@ -15,8 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const demoEmail =
           process.env.AUTH_DEMO_EMAIL ?? process.env.NEXTAUTH_DEMO_EMAIL;
         const demoPassword =
-          process.env.AUTH_DEMO_PASSWORD ??
-          process.env.NEXTAUTH_DEMO_PASSWORD;
+          process.env.AUTH_DEMO_PASSWORD ?? process.env.NEXTAUTH_DEMO_PASSWORD;
 
         if (!email || !password || !demoEmail || !demoPassword) {
           return null;

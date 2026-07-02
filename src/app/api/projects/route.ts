@@ -4,7 +4,10 @@ import { ZodError } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
-import { buildProjectOrderBy, buildProjectWhereInput } from "@/lib/projects/query";
+import {
+  buildProjectOrderBy,
+  buildProjectWhereInput,
+} from "@/lib/projects/query";
 import { serializeProject } from "@/lib/serializers/project";
 import {
   createProjectSchema,
@@ -22,10 +25,7 @@ function validationErrorResponse(error: ZodError) {
 }
 
 function serverErrorResponse() {
-  return NextResponse.json(
-    { error: "Internal server error" },
-    { status: 500 },
-  );
+  return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 }
 
 export async function GET(request: NextRequest) {

@@ -30,15 +30,29 @@ describe("ProjectsTable", () => {
   it("renders table headers and project data", () => {
     renderProjectsTable();
 
-    expect(screen.getByRole("columnheader", { name: "Title" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Deadline" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Assignee" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Budget" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Actions" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Title" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Status" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Deadline" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Assignee" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Budget" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Actions" }),
+    ).toBeInTheDocument();
 
     expect(screen.getByText("Customer Portal Redesign")).toBeInTheDocument();
-    expect(screen.getByText("Modernize the customer portal")).toBeInTheDocument();
+    expect(
+      screen.getByText("Modernize the customer portal"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Active")).toBeInTheDocument();
     expect(screen.getByText("Alice Chen")).toBeInTheDocument();
     expect(screen.getByText("$85,000")).toBeInTheDocument();
@@ -85,10 +99,11 @@ describe("ProjectsTable", () => {
       onSortChange: vi.fn(),
     });
 
-    expect(screen.getByRole("columnheader", { name: "Deadline" })).toHaveAttribute(
-      "aria-sort",
-      "descending",
+    expect(
+      screen.getByRole("columnheader", { name: "Deadline" }),
+    ).toHaveAttribute("aria-sort", "descending");
+    expect(screen.getByRole("button", { name: "Deadline" })).toHaveTextContent(
+      "↓",
     );
-    expect(screen.getByRole("button", { name: "Deadline" })).toHaveTextContent("↓");
   });
 });

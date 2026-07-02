@@ -15,14 +15,14 @@ A mini SaaS-style dashboard for managing projects. List, search, filter, create,
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 16 (App Router), React 19, Tailwind CSS 4 |
-| Backend | Next.js API Routes (REST) |
-| Database | PostgreSQL |
-| ORM | Prisma 6 |
-| Auth | NextAuth.js (Auth.js v5) |
-| Validation | Zod |
+| Layer      | Technology                                        |
+| ---------- | ------------------------------------------------- |
+| Frontend   | Next.js 16 (App Router), React 19, Tailwind CSS 4 |
+| Backend    | Next.js API Routes (REST)                         |
+| Database   | PostgreSQL                                        |
+| ORM        | Prisma 6                                          |
+| Auth       | NextAuth.js (Auth.js v5)                          |
+| Validation | Zod                                               |
 
 ## Prerequisites
 
@@ -48,13 +48,13 @@ cp .env.example .env
 
 Edit `.env` with your values:
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `AUTH_SECRET` | Random secret — run `openssl rand -base64 32` |
-| `AUTH_URL` | App URL, e.g. `http://localhost:3000` |
-| `AUTH_DEMO_EMAIL` | Login email for credentials auth |
-| `AUTH_DEMO_PASSWORD` | Login password for credentials auth |
+| Variable             | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL connection string                  |
+| `AUTH_SECRET`        | Random secret — run `openssl rand -base64 32` |
+| `AUTH_URL`           | App URL, e.g. `http://localhost:3000`         |
+| `AUTH_DEMO_EMAIL`    | Login email for credentials auth              |
+| `AUTH_DEMO_PASSWORD` | Login password for credentials auth           |
 
 `NEXTAUTH_SECRET` and `NEXTAUTH_URL` are optional aliases for `AUTH_SECRET` and `AUTH_URL`.
 
@@ -185,19 +185,22 @@ docker run --rm -p 3000:3000 \
 
 ### npm Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run dev:docker` | Start dev server bound to `0.0.0.0` (Docker) |
-| `npm run build` | Production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run unit and integration tests (Vitest) |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run db:push` | Push Prisma schema to database |
-| `npm run db:seed` | Seed sample data |
-| `npm run db:migrate` | Create and run migrations |
-| `npm run db:generate` | Regenerate Prisma client |
+| Script                 | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `npm run dev`          | Start development server                     |
+| `npm run dev:docker`   | Start dev server bound to `0.0.0.0` (Docker) |
+| `npm run build`        | Production build                             |
+| `npm run start`        | Start production server                      |
+| `npm run lint`         | Run ESLint                                   |
+| `npm run lint:fix`     | Run ESLint with auto-fix                     |
+| `npm run format`       | Format the repo with Prettier                |
+| `npm run format:check` | Check formatting with Prettier               |
+| `npm test`             | Run unit and integration tests (Vitest)      |
+| `npm run test:watch`   | Run tests in watch mode                      |
+| `npm run db:push`      | Push Prisma schema to database               |
+| `npm run db:seed`      | Seed sample data                             |
+| `npm run db:migrate`   | Create and run migrations                    |
+| `npm run db:generate`  | Regenerate Prisma client                     |
 
 ## API Reference
 
@@ -207,17 +210,17 @@ Sign in via the browser first, or use a session cookie from a logged-in session 
 
 ### Projects
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/projects` | List projects (paginated; includes `teamMember`) |
-| `GET` | `/api/projects?page=1&limit=10` | Paginate results (`page` defaults to `1`, `limit` defaults to `10`, max `100`) |
-| `GET` | `/api/projects?status=ACTIVE` | Filter by status (`ACTIVE`, `ON_HOLD`, `COMPLETED`) |
-| `GET` | `/api/projects?search=portal` | Search title/description (case-insensitive) |
-| `GET` | `/api/projects?sort=deadline&order=asc` | Sort results (`title`, `status`, `deadline`, `budget`, `assignee`; `order` is `asc` or `desc`) |
-| `POST` | `/api/projects` | Create a project |
-| `GET` | `/api/projects/:id` | Get a single project |
-| `PATCH` | `/api/projects/:id` | Update a project (partial) |
-| `DELETE` | `/api/projects/:id` | Delete a project |
+| Method   | Path                                    | Description                                                                                    |
+| -------- | --------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `GET`    | `/api/projects`                         | List projects (paginated; includes `teamMember`)                                               |
+| `GET`    | `/api/projects?page=1&limit=10`         | Paginate results (`page` defaults to `1`, `limit` defaults to `10`, max `100`)                 |
+| `GET`    | `/api/projects?status=ACTIVE`           | Filter by status (`ACTIVE`, `ON_HOLD`, `COMPLETED`)                                            |
+| `GET`    | `/api/projects?search=portal`           | Search title/description (case-insensitive)                                                    |
+| `GET`    | `/api/projects?sort=deadline&order=asc` | Sort results (`title`, `status`, `deadline`, `budget`, `assignee`; `order` is `asc` or `desc`) |
+| `POST`   | `/api/projects`                         | Create a project                                                                               |
+| `GET`    | `/api/projects/:id`                     | Get a single project                                                                           |
+| `PATCH`  | `/api/projects/:id`                     | Update a project (partial)                                                                     |
+| `DELETE` | `/api/projects/:id`                     | Delete a project                                                                               |
 
 **List response headers:** `X-Total-Count` (total matching rows), `X-Page`, `X-Limit`.
 
@@ -236,15 +239,15 @@ Sign in via the browser first, or use a session cookie from a logged-in session 
 
 ### Team Members
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/team-members` | List all team members (for assignee dropdown) |
+| Method | Path                | Description                                   |
+| ------ | ------------------- | --------------------------------------------- |
+| `GET`  | `/api/team-members` | List all team members (for assignee dropdown) |
 
 ### Auth
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/auth/*` | NextAuth.js handlers (sign-in, sign-out, session) |
+| Method | Path          | Description                                       |
+| ------ | ------------- | ------------------------------------------------- |
+| `GET`  | `/api/auth/*` | NextAuth.js handlers (sign-in, sign-out, session) |
 
 ### Example requests
 
@@ -288,8 +291,8 @@ prisma/
 
 <!-- Add screenshots or a GIF of the dashboard here -->
 
-| Dashboard | Add/Edit Modal |
-|-----------|----------------|
+| Dashboard                | Add/Edit Modal           |
+| ------------------------ | ------------------------ |
 | _Screenshot placeholder_ | _Screenshot placeholder_ |
 
 ## Deployment
@@ -310,15 +313,15 @@ Before going live, confirm:
 
 ### Vercel environment variables
 
-| Variable | Required | Example |
-|----------|----------|---------|
-| `DATABASE_URL` | Yes | `postgresql://postgres.[ref]:[pass]@...pooler.supabase.com:6543/postgres?pgbouncer=true` |
-| `AUTH_SECRET` | Yes | Output of `openssl rand -base64 32` |
-| `AUTH_URL` | Yes | `https://your-app.vercel.app` |
-| `AUTH_DEMO_EMAIL` | Yes | Your admin email |
-| `AUTH_DEMO_PASSWORD` | Yes | Strong password |
-| `NEXTAUTH_SECRET` | Optional | Same as `AUTH_SECRET` |
-| `NEXTAUTH_URL` | Optional | Same as `AUTH_URL` |
+| Variable             | Required | Example                                                                                  |
+| -------------------- | -------- | ---------------------------------------------------------------------------------------- |
+| `DATABASE_URL`       | Yes      | `postgresql://postgres.[ref]:[pass]@...pooler.supabase.com:6543/postgres?pgbouncer=true` |
+| `AUTH_SECRET`        | Yes      | Output of `openssl rand -base64 32`                                                      |
+| `AUTH_URL`           | Yes      | `https://your-app.vercel.app`                                                            |
+| `AUTH_DEMO_EMAIL`    | Yes      | Your admin email                                                                         |
+| `AUTH_DEMO_PASSWORD` | Yes      | Strong password                                                                          |
+| `NEXTAUTH_SECRET`    | Optional | Same as `AUTH_SECRET`                                                                    |
+| `NEXTAUTH_URL`       | Optional | Same as `AUTH_URL`                                                                       |
 
 ### Step-by-step: Vercel + Supabase
 
@@ -363,13 +366,13 @@ The included `vercel.json`:
 
 ### Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| `MissingSecret` on deploy | Set `AUTH_SECRET` in Vercel env vars |
-| `Can't reach database server` | Use Supabase **pooler** URL, not direct; check IP allowlist |
-| Login works locally but not on Vercel | Set `AUTH_URL` to the exact production URL |
-| Build fails on Prisma | Ensure `DATABASE_URL` is set in Vercel build env |
-| Empty project list | Run `prisma db push` and `db seed` against production DB |
+| Issue                                 | Fix                                                         |
+| ------------------------------------- | ----------------------------------------------------------- |
+| `MissingSecret` on deploy             | Set `AUTH_SECRET` in Vercel env vars                        |
+| `Can't reach database server`         | Use Supabase **pooler** URL, not direct; check IP allowlist |
+| Login works locally but not on Vercel | Set `AUTH_URL` to the exact production URL                  |
+| Build fails on Prisma                 | Ensure `DATABASE_URL` is set in Vercel build env            |
+| Empty project list                    | Run `prisma db push` and `db seed` against production DB    |
 
 ### Alternative hosts
 

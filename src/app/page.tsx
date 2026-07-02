@@ -10,7 +10,5 @@ export default async function Home() {
     redirect("/login");
   }
 
-  return (
-    <ProjectsDashboard userEmail={session.user?.email ?? undefined} />
-  );
+  return <ProjectsDashboard userEmail={session.user?.email ?? undefined} />;
 }

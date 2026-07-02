@@ -7,7 +7,10 @@ export async function requireAuth() {
   if (!session?.user) {
     return {
       session: null,
-      unauthorized: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+      unauthorized: NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 },
+      ),
     };
   }
 

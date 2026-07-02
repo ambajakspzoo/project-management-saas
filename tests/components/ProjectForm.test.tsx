@@ -52,7 +52,9 @@ describe("ProjectForm", () => {
   it("displays current form values", () => {
     renderProjectForm();
 
-    expect(screen.getByLabelText("Title")).toHaveValue("Customer Portal Redesign");
+    expect(screen.getByLabelText("Title")).toHaveValue(
+      "Customer Portal Redesign",
+    );
     expect(screen.getByLabelText("Description")).toHaveValue(
       "Modernize the customer portal",
     );

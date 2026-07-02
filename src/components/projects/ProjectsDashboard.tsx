@@ -65,14 +65,11 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedSearch(search);
+      setPage(1);
     }, 300);
 
     return () => window.clearTimeout(timer);
   }, [search]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [status, debouncedSearch]);
 
   useEffect(() => {
     if (feedback?.type !== "success") {
@@ -141,7 +138,8 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
         } else {
           setFeedback({
             type: "error",
-            message: "Failed to refresh projects. Showing the last loaded data.",
+            message:
+              "Failed to refresh projects. Showing the last loaded data.",
           });
         }
       } finally {
@@ -263,7 +261,10 @@ export function ProjectsDashboard({ userEmail }: { userEmail?: string }) {
           status={status}
           disabled={isMutating || isInitialLoading}
           onSearchChange={setSearch}
-          onStatusChange={setStatus}
+          onStatusChange={(value) => {
+            setStatus(value);
+            setPage(1);
+          }}
         />
 
         {feedback ? (

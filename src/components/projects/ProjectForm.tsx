@@ -93,7 +93,10 @@ export function ProjectForm({
           label="Status"
           value={values.status}
           onChange={(event) =>
-            updateField("status", event.target.value as ProjectFormValues["status"])
+            updateField(
+              "status",
+              event.target.value as ProjectFormValues["status"],
+            )
           }
           error={errors.status}
           disabled={isSubmitting}
@@ -120,9 +123,7 @@ export function ProjectForm({
         <Select
           label="Team member"
           value={values.teamMemberId}
-          onChange={(event) =>
-            updateField("teamMemberId", event.target.value)
-          }
+          onChange={(event) => updateField("teamMemberId", event.target.value)}
           error={errors.teamMemberId}
           disabled={isSubmitting || teamMembers.length === 0}
           required

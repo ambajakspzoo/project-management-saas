@@ -44,8 +44,7 @@ export function Pagination({
         <span className="font-medium text-zinc-900">
           {start}–{end}
         </span>{" "}
-        of{" "}
-        <span className="font-medium text-zinc-900">{totalCount}</span>{" "}
+        of <span className="font-medium text-zinc-900">{totalCount}</span>{" "}
         {itemLabel}
       </p>
 
@@ -55,8 +54,7 @@ export function Pagination({
           className="flex items-center justify-between gap-3 sm:justify-end"
         >
           <span className="text-sm text-zinc-600">
-            Page{" "}
-            <span className="font-medium text-zinc-900">{page}</span> of{" "}
+            Page <span className="font-medium text-zinc-900">{page}</span> of{" "}
             <span className="font-medium text-zinc-900">{totalPages}</span>
           </span>
           <div className="flex gap-2">

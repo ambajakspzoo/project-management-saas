@@ -70,11 +70,9 @@ export function mapZodErrors(
   return fieldErrors;
 }
 
-export function mapApiValidationErrors(
-  details: {
-    fieldErrors?: Record<string, string[] | undefined>;
-  },
-): Partial<Record<keyof ProjectFormValues, string>> {
+export function mapApiValidationErrors(details: {
+  fieldErrors?: Record<string, string[] | undefined>;
+}): Partial<Record<keyof ProjectFormValues, string>> {
   const fieldErrors: Partial<Record<keyof ProjectFormValues, string>> = {};
 
   if (!details.fieldErrors) {

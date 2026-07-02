@@ -54,8 +54,12 @@ describe("Pagination", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Next page" })).not.toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Previous page" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Next page" }),
+    ).not.toBeDisabled();
   });
 
   it("hides controls when there is only one page", () => {
@@ -72,7 +76,11 @@ describe("Pagination", () => {
     expect(screen.getByText(/Showing/)).toHaveTextContent(
       "Showing 1–8 of 8 projects",
     );
-    expect(screen.queryByRole("button", { name: "Previous page" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Next page" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Previous page" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Next page" }),
+    ).not.toBeInTheDocument();
   });
 });
